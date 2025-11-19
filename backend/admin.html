@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio Messages</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #1a1a1a; color: white; }
+        .message { background: #2d2d2d; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .email { color: #60a5fa; font-weight: bold; }
+        .time { color: #9ca3af; font-size: 12px; }
+        .refresh { background: #7c3aed; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>📨 Portfolio Contact Messages</h1>
+    <button class="refresh" onclick="loadMessages()">🔄 Refresh Messages</button>
+    <div id="messages"></div>
+
+    <script>
+        async function loadMessages() {
+            try {
+                const response = await fetch('http://localhost:5000/api/messages');
+                const result = await response.json();
+                
+                const messagesDiv = document.getElementById('messages');
+                
+                if (result.success && result.data.length > 0) {
+                    messagesDiv.innerHTML = result.data.map(msg => `
+                        <div class="message">
+                            <div class="email">${msg.name} (${msg.email})</div>
+                            <div>${msg.message}</div>
+                            <div class="time">${new Date(msg.createdAt).toLocaleString()}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    messagesDiv.innerHTML = '<p>No messages found</p>';
+                }
+            } catch (error) {
+                document.getElementById('messages').innerHTML = '<p>Error loading messages</p>';
+            }
+        }
+
+        // Load messages when page opens
+        loadMessages();
+        
+        // Auto-refresh every 10 seconds
+        setInterval(loadMessages, 10000);
+    </script>
+</body>
+</html>
